@@ -1,0 +1,84 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ЗНО - Історія</title>
+    <link rel="stylesheet" href="css/main_white.css">
+	<link rel="stylesheet" href="css/main.css">
+    <link rel="icon" href="resource/icons/favicon32.png">
+    <script src="js/theme_mode.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-button">Головна</a><a href="history.html" class="header-button">Історія</a><a href="setting.html" class="header-button">Налаштування</a>
+        </div>
+    </div>
+
+	<div class="rounded-block" align="center">
+		<hr>
+		<h3>Перегляд історії</h3>
+		<hr>
+		<table>
+			<tr>
+				<td><label for="subject_select">Предмет:</label></td>
+				<td align="right">
+					<select id="subject_select"  class="input_format">
+						<!-- load from database -->
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><label for="group_by_checkbox">Групувати?</label></td>
+				<td align="right">
+					<input type="checkbox" name="groupByTheme" id="group_by_checkbox" >
+				</td>
+			</tr>
+			<tr>
+				<td><label for="from_date_input">З дати:</label></td>
+				<td align="right"><input type="date" id="from_date_input" class="input_format"></td>
+			</tr>
+			<tr>
+				<td> <label for="to_date_input">По дату:</label></td>
+				<td align="right"><input type="date" id="to_date_input" class="input_format"></td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><input class="green_button" type="button" value="Знайти" onclick="onSearchButtonClick()"></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="button" value="Сьогодні" class="tag-button" onclick="onTodayButtonClick()">
+					<input type="button" value="Вчора" class="tag-button" onclick="onYesterdayButtonClick()">
+					<input type="button" value="За тиждень" class="tag-button" onclick="onLastWeekButtonClick()">
+					<input type="button" value="Очистити" class="tag-button" onclick="onClearButtonClick()">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="rounded-block" align="center" id="block_with_result" style="display: none">
+		<table border="1" style="border-collapse: collapse; width: 100%; text-align: center">
+			<thead>
+				<tr>
+					<th>
+                        <img src="resource/icons/subject_white.svg" width="16" height="16" alt="Предмет">
+                    </th>
+					<th>
+                        <img src="resource/icons/theme_white.svg" width="16" height="16" alt="Тема">
+                    </th>
+					<th>
+                        <img src="resource/icons/time_white.svg" width="16" height="16" alt="Час">
+                    </th>
+				</tr>
+			</thead>
+			<tbody id="history_table">
+				
+			</tbody>
+		</table>
+	</div>
+    <div class="rounded-block" align="center" id="nothing_to_show_block" style="display: none">
+        За вказаними параметрами нічого не було знайдено. Спробуйте змінити параметри або зверніться до адміністратора
+    </div>
+
+  <script src="js/api_history.js" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>

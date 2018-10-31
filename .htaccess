@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^.]+)$ $1.html [NC,L]
+AddDefaultCharset utf-8
+DirectoryIndex index.html
+Redirect 301 /api/connect.php https://hwork.net/404.shtml

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>ЗНО - Налаштування</title>
+    <link rel="stylesheet" href="css/main_white.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" href="resource/icons/favicon32.png">
+    <script src="js/theme_mode.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-button">Головна</a><a href="history.html" class="header-button">Історія</a><a href="setting.html" class="header-button">Налаштування</a>
+        </div>
+    </div>
+
+    <div class="rounded-block" style="padding: 16px " align="left">
+        <strong>
+            <span style="font-size: 20px;">
+                Ім'я користувача
+            </span>
+        </strong>
+        <br>
+        <span style="color: #495057">user-name</span><br>
+        <p><span style="color: #495057">Коротка біографія</span></p>
+        <input type="button" value="Змінити" class="blue_button" style="display: inline-block">
+        <input type="button" value="Вийти" class="blue_button" style="display: inline-block">
+        <hr>
+        <!--select theme-->
+        <label for="theme-mode">Перемикання тем:</label><br>
+        <select name="theme-mode" id="theme-mode" class="input_format"
+        onchange="setCookie('style-theme', value); checkTheme();">
+            <option value="dark">Темний режим</option>
+            <option value="white">Світлий режим</option>
+        </select>
+        <script>
+            document.getElementById('theme-mode').value = (getCookie('style-theme') != null ? getCookie('style-theme') : 'white');
+        </script>
+        <!--end of select theme-->
+
+    </div>
+</body>
+</html>
