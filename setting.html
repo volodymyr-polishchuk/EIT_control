@@ -31,7 +31,7 @@
         <!--select theme-->
         <label for="theme-mode">Перемикання тем:</label><br>
         <select name="theme-mode" id="theme-mode" class="input_format"
-        onchange="setCookie('style-theme', value); checkTheme();">
+        onchange="setCookie('style-theme', value, {'expires': 60 * 60 * 24 * 30}); checkTheme();">
             <option value="dark">Темний режим</option>
             <option value="white">Світлий режим</option>
         </select>

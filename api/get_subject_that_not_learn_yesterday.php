@@ -4,7 +4,7 @@
 
 	$connection = EIT_DAO::getConnection();
 	
-	$query = "SELECT subject.name AS subjectName FROM subject WHERE k NOT IN (SELECT lessons.subject FROM lessons WHERE (lessons.date_start >= (CURDATE() - 1) AND lessons.date_end < CURDATE()) AND lessons.date_end > ('0000-00-00 00:00:00') GROUP BY lessons.subject)";
+	$query = "SELECT subject.name AS subjectName FROM subject WHERE k NOT IN (SELECT lessons.subject FROM lessons WHERE (UNIX_TIMESTAMP(lessons.date_start) >= (UNIX_TIMESTAMP(CURDATE()) - 86400) AND UNIX_TIMESTAMP(lessons.date_end) < UNIX_TIMESTAMP(CURDATE())) AND lessons.active = FALSE GROUP BY lessons.subject)";
 
 	$themes = array();
 	foreach ($connection->query($query) as $row) {
