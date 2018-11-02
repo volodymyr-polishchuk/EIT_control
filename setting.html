@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="icon" href="resource/icons/favicon32.png">
     <script src="js/theme_mode.js"></script>
+    <script src="js/api_setting.js"></script>
 </head>
 <body>
     <div class="header">
@@ -26,12 +27,11 @@
         <span style="color: #495057">user-name</span><br>
         <p><span style="color: #495057">Коротка біографія</span></p>
         <input type="button" value="Змінити" class="blue_button" style="display: inline-block">
-        <input type="button" value="Вийти" class="blue_button" style="display: inline-block">
+        <input type="button" value="Вийти" class="blue_button" onclick="onLogoutClick()" style="display: inline-block">
         <hr>
         <!--select theme-->
         <label for="theme-mode">Перемикання тем:</label><br>
-        <select name="theme-mode" id="theme-mode" class="input_format"
-        onchange="setCookie('style-theme', value, {'expires': 60 * 60 * 24 * 30}); checkTheme();">
+        <select name="theme-mode" id="theme-mode" class="input_format" onchange="setCookie('style-theme', value, {'expires': 60 * 60 * 24 * 30}); checkTheme();">
             <option value="dark">Темний режим</option>
             <option value="white">Світлий режим</option>
         </select>
