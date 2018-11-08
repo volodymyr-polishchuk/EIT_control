@@ -1,14 +1,16 @@
-const tableRowTemplate = '<tr><td>${lesson}</td><td><small>${theme}</small></td><td>${time}</td><td><input type="button" value="&#10003;" class="success-button" onclick="successButtonClick(${lessonId})"><input type="button" value="&#10006;&#xFE0E;" class="cancel-button" onclick="cancelButtonClick(${lessonId})"></td></tr>';
+const tableRowTemplate = '<tr><td>${lesson}</td><td><small>${theme}</small></td><td><span style="font-family: \'Courier New\',serif" id="timer_${timerId}">${time}</span></td><td><input type="button" value="&#10003;" class="success-button" onclick="successButtonClick(${lessonId})"><input type="button" value="&#10006;&#xFE0E;" class="cancel-button" onclick="cancelButtonClick(${lessonId})"></td></tr>';
+let timers = [];
 
 init();
 
-function getRowElement(lessonName, themeName, time, lessonID) {
+function getRowElement(lessonName, themeName, time, lessonID, timerID) {
     return tableRowTemplate
         .replace("${lesson}", lessonName)
         .replace("${theme}", themeName)
         .replace("${time}", time)
         .replace("${lessonId}", lessonID)
-        .replace("${lessonId}", lessonID);
+        .replace("${lessonId}", lessonID)
+		.replace("${timerId}", timerID);
 }
 
 function cancelButtonClick(lesson_id) {
@@ -92,10 +94,21 @@ function refreshLessons() {
             let responseJSON = JSON.parse(xhr.responseText);
             let table = document.getElementById('lessons_table');
             table.innerHTML = " ";
+            timers.forEach(value => clearInterval(value.interval));
+            timers = [];
 			for (let i = 0; i < responseJSON.length; i++) {
                 let timeDiff = responseJSON[i].timeToNowDiff;
                 let formattedTime = Math.floor(timeDiff / 60) + ":" + ((timeDiff % 60) >= 10 ? (timeDiff % 60) : ("0" + (timeDiff % 60)));
-                table.innerHTML += getRowElement(responseJSON[i].lessonName, responseJSON[i].themeName, formattedTime, responseJSON[i].lessonID);
+
+                timers[i] = {id: i, time: timeDiff, interval: setInterval(function () {
+                        let info = timers[i];
+                        if (info != null) {
+                            document.getElementById("timer_" + info.id).innerText = timeFormat(Number(info.time) + 1);
+                            timers[i].time = Number(info.time) + 1;
+                        }
+                    }, 1000)};
+
+                table.innerHTML += getRowElement(responseJSON[i].lessonName, responseJSON[i].themeName, formattedTime, responseJSON[i].lessonID, i);
 			}
 			document.getElementById("active_lessons").style.display = (responseJSON.length === 0 ? "none" : "block");
 		} else if (xhr.status === 403) {
@@ -105,6 +118,10 @@ function refreshLessons() {
 		}
 	};
 	xhr.send();
+}
+
+function timeFormat(time) {
+    return Math.floor(time / 60) + ":" + ((time % 60) >= 10 ? (time % 60) : ("0" + (time % 60)))
 }
 
 function onElementSelected(owner) {
