@@ -15,28 +15,46 @@
         <h3>Авторизація</h3>
         <hr>
         <div style="max-width: 200px">
-            <form action="api/login.php" method="post">
-                <table>
-                    <tr>
-                        <td>
-                            <input class="input_format" type="text" placeholder="Ім'я користувача" name="login" id="login">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input class="input_format" type="password" name="password" id="password" placeholder="Пароль">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input class="green_button" type="submit" value="Увійти">
-                        </td>
-                    </tr>
-                </table>
-            </form>
+            <table>
+                <tr>
+                    <td>
+                        <input class="input_format" type="text" placeholder="Ім'я користувача" name="login" id="login">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="input_format" type="password" name="password" id="password" placeholder="Пароль">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="green_button" type="button" value="Увійти" onclick="onSubmitButtonClick()">
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
-
+    <script>
+        function onSubmitButtonClick() {
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api/login.php');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+                if (xhr.status === 200) {
+                    let obj = JSON.parse(xhr.responseText);
+                    setCookie('auth-token', obj.auth_token, {expires: 60 * 60 * 24 * 30});
+                    setCookie('auth-k', obj.auth_k, {expires: 60 * 60 * 24 * 30});
+                    document.location = obj.location;
+                } else {
+                    alert(xhr.responseText);
+                }
+            };
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            let login = document.getElementById('login').value;
+            let password = document.getElementById('password').value;
+            xhr.send("login=" + login + "&password=" + password);
+        }
+    </script>
 
 </body>
 </html>

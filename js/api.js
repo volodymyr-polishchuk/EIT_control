@@ -100,11 +100,12 @@ function refreshLessons() {
                 let timeDiff = responseJSON[i].timeToNowDiff;
                 let formattedTime = Math.floor(timeDiff / 60) + ":" + ((timeDiff % 60) >= 10 ? (timeDiff % 60) : ("0" + (timeDiff % 60)));
 
-                timers[i] = {id: i, time: timeDiff, interval: setInterval(function () {
+                timers[i] = {id: i, timeD: timeDiff, timeCreate: (new Date()).getTime(), interval: setInterval(function () {
                         let info = timers[i];
+                        let timeNow;
                         if (info != null) {
-                            document.getElementById("timer_" + info.id).innerText = timeFormat(Number(info.time) + 1);
-                            timers[i].time = Number(info.time) + 1;
+                            timeNow = (new Date()).getTime();
+                            document.getElementById("timer_" + info.id).innerText = timeFormat(Number(info.timeD) + Number(timeNow - info.timeCreate) / 1000);
                         }
                     }, 1000)};
 
@@ -154,6 +155,18 @@ function refreshThemes(lessonsCode) {
 }
 
 function init() {
+	let subjects = localStorage['subjects'];
+	if (subjects != null) {
+		let select = document.getElementById('subject-select');
+        let responseJSON = JSON.parse(subjects);
+        for (let i = 0; i < responseJSON.length; i++) {
+            let option = document.createElement("option");
+            option.text = responseJSON[i].name;
+            option.value = responseJSON[i].k;
+            select.add(option);
+        }
+	}
+
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/all_subject.php', true);
 	xhr.onreadystatechange = function() {
@@ -161,6 +174,9 @@ function init() {
 
 		if (xhr.status === 200) {
             let select = document.getElementById('subject-select');
+            if (localStorage['subjects'] === xhr.responseText) return;
+
+            localStorage.setItem('subjects', xhr.responseText);
             let responseJSON = JSON.parse(xhr.responseText);
             for (let i = 0; i < responseJSON.length; i++) {
                 let option = document.createElement("option");
@@ -239,6 +255,6 @@ function startLoadDataListForSubject() {
 
 function handleException(code) {
 	if (code === 403) {
-		document.location = "https://hwork.net/polishchuk/eit/login.html";
+		document.location = "login.html";
 	}
 }

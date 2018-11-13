@@ -11,10 +11,11 @@
 	$sth->execute(array($login, $password));
 
 	foreach ($sth->fetchAll() as $row) {
-        setcookie('auth-token', $row['password_hash'], time() + 3600 * 24 * 30, "/polishchuk/eit");
-        setcookie('auth-k', $row['k'], time() + 3600 * 24 * 30, "/polishchuk/eit");
-        header("Location: https://hwork.net/polishchuk/eit/index.html");
-        http_response_code(303);
+	    $response = [];
+	    $response['auth_token'] = $row['password_hash'];
+	    $response['auth_k'] = $row['k'];
+	    $response['location'] = 'index.html';
+	    echo json_encode($response);
         die();
     } 
     http_response_code(403);

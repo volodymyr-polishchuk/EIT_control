@@ -106,6 +106,6 @@ function getAllSubject() {
 
 function handleException(code) {
     if (code === 403) {
-        document.location = "https://hwork.net/polishchuk/eit/login.html";
+        document.location = "login.html";
     }
 }
