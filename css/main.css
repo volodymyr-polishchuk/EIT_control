@@ -63,21 +63,25 @@ td {
 }
 
 .success-button {
-    width: 100%;
+    width: 2rem;
+    height: 1.5rem;
     border-radius: 8px;
-    display: block;
+    display: inline-block;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    margin: 2px;
 }
 
 .cancel-button {
-    width: 100%;
+    width: 2rem;
+    height: 1.5rem;
     border-radius: 8px;
-    display: block;
+    display: inline-block;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    margin: 2px;
 }
 
 

@@ -13,6 +13,19 @@ function getRowElement(lessonName, themeName, time, lessonID, timerID) {
 		.replace("${timerId}", timerID);
 }
 
+function readyStateHandler(xmlHttpRequest, settings) {
+    if (xmlHttpRequest.readyState !== 4) return;
+    if (settings[xmlHttpRequest.status]) {
+        settings[xmlHttpRequest.status](xmlHttpRequest);
+        return;
+    }
+    if (xmlHttpRequest.status === 403) {
+        handleException(xmlHttpRequest.status);
+    } else {
+        alert("Сталася помилка. Зверністься до адміністратора. " + xmlHttpRequest.status + " - " + xmlHttpRequest.statusText);
+    }
+}
+
 function cancelButtonClick(lesson_id) {
 	if (!confirm("Ви впевнені, що бажаєте відмінити зайняття?")) return;
 
@@ -21,16 +34,11 @@ function cancelButtonClick(lesson_id) {
 	let body = 'lesson_id=' + encodeURIComponent(lesson_id);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-		if (xhr.status === 200) {
-			refreshLessons();
-			alert("Заняття відмінено");
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			alert("Сталася помилка. Зверністься до адміністратора. " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+	    readyStateHandler(xhr, {200: function () {
+            refreshLessons();
+            alert("Заняття відмінено");
+	    }});
+    };
 	xhr.send(body);
 }
 
@@ -39,17 +47,12 @@ function successButtonClick(lesson_id) {
 	xhr.open('POST', 'api/success_lesson.php', true);
 	let body = 'lesson_id=' + encodeURIComponent(lesson_id);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-		if (xhr.status === 200) {
-			refreshLessons();
-			alert("Заняття збережено");
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			alert("Сталася помилка. Зверністься до адміністратора. " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function () {
+            refreshLessons();
+            alert("Заняття збережено");
+        }})
+    };
 	xhr.send(body);	
 }
 
@@ -68,18 +71,13 @@ function startLesson() {
     xhr.open('POST', 'api/start_lesson.php', true);
     let body = 'subject=' + encodeURIComponent(selectedLessonCode) + '&theme=' + encodeURIComponent(currentThemeName);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState !== 4) return;
-		if (xhr.status === 200) {
-			refreshLessons();
-			refreshThemes(selectedLessonCode);
-			alert("Заняття розпочалося");
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			alert("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);	
-		}
-	};
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function () {
+            refreshLessons();
+            refreshThemes(selectedLessonCode);
+            alert("Заняття розпочалося");
+        }})
+    };
 	xhr.send(body);
 }
 
@@ -88,36 +86,37 @@ function refreshLessons() {
 	// робити запит на сервер і відображати всі наявні уроки
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/all_lessons.php', true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-		if (xhr.status === 200) {
-            let responseJSON = JSON.parse(xhr.responseText);
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function (xml) {
+            let responseJSON = JSON.parse(xml.responseText);
             let table = document.getElementById('lessons_table');
             table.innerHTML = " ";
             timers.forEach(value => clearInterval(value.interval));
             timers = [];
-			for (let i = 0; i < responseJSON.length; i++) {
+            for (let i = 0; i < responseJSON.length; i++) {
                 let timeDiff = responseJSON[i].timeToNowDiff;
-                let formattedTime = Math.floor(timeDiff / 60) + ":" + ((timeDiff % 60) >= 10 ? (timeDiff % 60) : ("0" + (timeDiff % 60)));
+                let formattedTime = timeFormat(timeDiff);
 
-                timers[i] = {id: i, timeD: timeDiff, timeCreate: (new Date()).getTime(), interval: setInterval(function () {
+                timers[i] = {
+                    id: i,
+                    timeDifferenceFromServer: timeDiff,
+                    timeCreate: new Date().getTime(),
+                    interval: setInterval(function () {
                         let info = timers[i];
                         let timeNow;
                         if (info != null) {
-                            timeNow = (new Date()).getTime();
-                            document.getElementById("timer_" + info.id).innerText = timeFormat(Number(info.timeD) + Number(timeNow - info.timeCreate) / 1000);
+                            timeNow = new Date().getTime();
+                            document.getElementById("timer_" + info.id).innerText
+                                = timeFormat(Number(info.timeDifferenceFromServer) + Math.floor(Number(timeNow - info.timeCreate) / 1000));
                         }
-                    }, 1000)};
+                    }, 1000)
+                };
 
                 table.innerHTML += getRowElement(responseJSON[i].lessonName, responseJSON[i].themeName, formattedTime, responseJSON[i].lessonID, i);
-			}
-			document.getElementById("active_lessons").style.display = (responseJSON.length === 0 ? "none" : "block");
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			console.log("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+            }
+            document.getElementById("active_lessons").style.display = (responseJSON.length === 0 ? "none" : "block");
+        }})
+    };
 	xhr.send();
 }
 
@@ -133,24 +132,18 @@ function onElementSelected(owner) {
 function refreshThemes(lessonsCode) {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/all_themes.php?subject_code=' + lessonsCode, true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-
-		if (xhr.status === 200) {
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function () {
             let dataList = document.getElementById('themes-for-subject');
             while (dataList.firstChild) dataList.removeChild(dataList.firstChild);
             let responseJSON = JSON.parse(xhr.responseText);
             for (let i = 0; i < responseJSON.length; i++) {
-				let option = document.createElement("option");
-				option.value = responseJSON[i].name;
-				dataList.appendChild(option);
-			}
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			console.log("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+                let option = document.createElement("option");
+                option.value = responseJSON[i].name;
+                dataList.appendChild(option);
+            }
+        }})
+    };
 	xhr.send();
 }
 
@@ -169,28 +162,24 @@ function init() {
 
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/all_subject.php', true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-
-		if (xhr.status === 200) {
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function (xml) {
             let select = document.getElementById('subject-select');
-            if (localStorage['subjects'] === xhr.responseText) return;
-
-            localStorage.setItem('subjects', xhr.responseText);
-            let responseJSON = JSON.parse(xhr.responseText);
+            if (localStorage['subjects'] === xml.responseText) {
+                loadDatalistForSubjectSelect();
+                return;
+            }
+            localStorage.setItem('subjects', xml.responseText);
+            let responseJSON = JSON.parse(xml.responseText);
             for (let i = 0; i < responseJSON.length; i++) {
                 let option = document.createElement("option");
                 option.text = responseJSON[i].name;
-				option.value = responseJSON[i].k; 
-				select.add(option);
-			}
-			startLoadDataListForSubject();
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			console.log("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+                option.value = responseJSON[i].k;
+                select.add(option);
+            }
+            loadDatalistForSubjectSelect();
+        }})
+    };
 	xhr.send();
 	refreshLessons();
 	setSubjectNotify();
@@ -199,57 +188,52 @@ function init() {
 function setSubjectNotify() {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/get_subject_that_not_learn_yesterday.php', true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-
-		if (xhr.status === 200) {
-            let responseJSON = JSON.parse(xhr.responseText);
-            let divElem = document.getElementById('subject_notify');
-            divElem.innerHTML = " ";
-			if (responseJSON.length === 0) {
-				divElem.innerHTML = "Молодець. Ти повчила всі предмети вчора";
-			} else if (responseJSON.length >= 4) {
-				alert("Альо, гальорка! Вчи давай!");
-				divElem.innerHTML = "Так, лінива жопа. Сьогодні пахаєш. Треба вчити:<br> ";
-			} else {
-				divElem.innerHTML = "Сьогодні варто вчити такі предмети: <br>";
-			}
-			for (let i = 0; i < responseJSON.length; i++) {
-				divElem.innerHTML += (i + 1) + ". " + responseJSON[i].subjectName + "<br>";
-			}
-		} else if (xhr.status === 403) {
-            handleException(xhr.status);
-        } else {
-			console.log("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function (xml) {
+            let responseJSON = JSON.parse(xml.responseText);
+            let subjectNotify = document.getElementById('subject_notify');
+            switch (responseJSON.length) {
+                case 0: {
+                    subjectNotify.innerHTML = "Молодець. Ти повчила всі предмети вчора";
+                } break;
+                case 1: case 2: case 3: {
+                    subjectNotify.innerHTML = "Сьогодні варто вчити такі предмети: <br>";
+                    for (let i = 0; i < responseJSON.length; i++) {
+                        subjectNotify.innerHTML += (i + 1) + ". " + responseJSON[i].subjectName + "<br>";
+                    }
+                } break;
+                case 4: {
+                    subjectNotify.innerHTML = "Так, лінива жопа. Сьогодні пахаєш. Треба вчити:<br> ";
+                    if (getCookie('subjectNotify') !== 'off') {
+                        setCookie('subjectNotify', 'off');
+                        alert("Альо, гальорка! Вчи давай!");
+                    }
+                } break;
+            }
+        }})
+    };
 	xhr.send();
 }
 
-function startLoadDataListForSubject() {
+function loadDatalistForSubjectSelect() {
     let selectElem = document.getElementById('subject-select');
     let selectCode = selectElem.options[selectElem.selectedIndex].value;
 
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'api/all_themes.php?subject_code=' + selectCode, true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState !== 4) return;
-
-		if (xhr.status === 200) {
-            let dateList = document.getElementById('themes-for-subject');
+    xhr.onreadystatechange = function() {
+        readyStateHandler(xhr, {200: function () {
+            let datalistForSubject = document.getElementById('themes-for-subject');
             let responseJSON = JSON.parse(xhr.responseText);
-            while (dateList.firstChild) dateList.removeChild(dateList.firstChild);
-			for (let i = 0; i < responseJSON.length; i++) {
+            while (datalistForSubject.firstChild)
+                datalistForSubject.removeChild(datalistForSubject.firstChild);
+            for (let i = 0; i < responseJSON.length; i++) {
                 let option = document.createElement("option");
                 option.value = responseJSON[i].name;
-				dateList.appendChild(option);
-			}
-		} else if (xhr.status === 403) {
-			handleException(xhr.status);
-        } else {
-			console.log("Сервіс не працює. Зверніться до адміністратора. Причина " + xhr.status + " - " + xhr.statusText);
-		}
-	};
+                datalistForSubject.appendChild(option);
+            }
+        }})
+    };
 	xhr.send();
 }
 
