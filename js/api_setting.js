@@ -1,15 +1,15 @@
-//init
-
-window.onload = function() {
-    let userInfo = localStorage['userInfo'];
+init();
+function init() {
+    const userInfoFromLocalStorage = localStorage['userInfo'];
     let userLogin = document.getElementById("user_login");
     let userName = document.getElementById("user_name");
     let description = document.getElementById("description");
-    if (userInfo != null) {
-        let response = JSON.parse(userInfo);
-        userLogin.innerText = response.login;
-        userName.innerText = response.name;
-        description.innerText = response.description;
+
+    if (userInfoFromLocalStorage != null) {
+        const userInfoFromLocalStorageObj = JSON.parse(userInfoFromLocalStorage);
+        userLogin.innerText = userInfoFromLocalStorageObj.login;
+        userName.innerText = userInfoFromLocalStorageObj.name;
+        description.innerText = userInfoFromLocalStorageObj.description;
     }
 
     let xhr = new XMLHttpRequest();
@@ -19,16 +19,16 @@ window.onload = function() {
         if (xhr.status === 200) {
             if (xhr.responseText === localStorage['userInfo']) return;
             localStorage.setItem('userInfo', xhr.responseText);
-            let response = JSON.parse(xhr.responseText);
-            userLogin.innerText = response.login;
-            userName.innerText = response.name;
-            description.innerText = response.description;
+            let userInfoFromServer = JSON.parse(xhr.responseText);
+            userLogin.innerText = userInfoFromServer.login;
+            userName.innerText = userInfoFromServer.name;
+            description.innerText = userInfoFromServer.description;
         } else {
-            handleException(xhr.status);
+            handleStatus(xhr.status);
         }
     };
     xhr.send();
-};
+}
 
 function onLogoutClick() {
     setCookie('auth-token', null, {expires: -1});
@@ -36,7 +36,7 @@ function onLogoutClick() {
     document.location.href = 'login.html';
 }
 
-function handleException(code) {
+function handleStatus(code) {
     if (code === 403) {
         document.location = "login.html";
     }

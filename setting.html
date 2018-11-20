@@ -6,9 +6,8 @@
     <title>ЗНО - Налаштування</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="icon" href="resource/icons/favicon32.png">
-    <script src="js/theme_mode.js"></script>
 </head>
-<body>
+<body class="light">
     <script src="js/theme_mode.js"></script>
     <div class="header">
         <div class="header-inner">
@@ -21,15 +20,17 @@
         </strong>
         <br>
         <span style="color: #495057" id="user_login">&#160;</span><br>
-        <p><span style="color: #495057" id="description">&#160;</span></p>
+        <p>
+            <span style="color: #495057" id="description">&#160;</span>
+        </p>
         <input type="button" value="Змінити" class="blue_button" style="display: inline-block">
         <input type="button" value="Вийти" class="blue_button" onclick="onLogoutClick()" style="display: inline-block">
         <hr>
         <!--select theme-->
         <label for="theme-mode">Перемикання тем:</label><br>
         <select name="theme-mode" id="theme-mode" class="input_format" onchange="setCookie('style-theme', value, {'expires': 60 * 60 * 24 * 30}); checkTheme();">
-            <option value="dark">Темний режим</option>
             <option value="white">Світлий режим</option>
+            <option value="dark">Темний режим</option>
         </select>
         <script>
             document.getElementById('theme-mode').value = (getCookie('style-theme') != null ? getCookie('style-theme') : 'white');
@@ -37,5 +38,6 @@
         <!--end of select theme-->
 
     </div>
+    <script src="js/api_setting.js"></script>
 </body>
 </html>

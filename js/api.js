@@ -3,7 +3,7 @@ let timers = [];
 
 init();
 
-function getRowElement(lessonName, themeName, time, lessonID, timerID) {
+function createRowFromPattern(lessonName, themeName, time, lessonID, timerID) {
     return tableRowTemplate
         .replace("${lesson}", lessonName)
         .replace("${theme}", themeName)
@@ -22,13 +22,10 @@ function readyStateHandler(xmlHttpRequest, settings) {
     if (xmlHttpRequest.status === 403) {
         handleException(xmlHttpRequest.status);
     } else {
-        alert("Сталася помилка. Зверністься до адміністратора. " + xmlHttpRequest.status + " - " + xmlHttpRequest.statusText);
+        const message = "Сталася помилка. Зверністься до адміністратора. "
+            + xmlHttpRequest.status + " - " + xmlHttpRequest.statusText;
+        alert(message);
     }
-}
-
-function changeColorSchema(name) {
-    let element = document.getElementsByTagName('body')[0];
-
 }
 
 function cancelButtonClick(lesson_id) {
@@ -93,13 +90,13 @@ function refreshLessons() {
     xhr.open('GET', 'api/all_lessons.php', true);
     xhr.onreadystatechange = function() {
         readyStateHandler(xhr, {200: function (xml) {
-            let responseJSON = JSON.parse(xml.responseText);
-            let table = document.getElementById('lessons_table');
-            table.innerHTML = " ";
+            let lessonsResponse = JSON.parse(xml.responseText);
+            let lessonsTable = document.getElementById('lessons_table');
+            lessonsTable.innerHTML = " ";
             timers.forEach(value => clearInterval(value.interval));
             timers = [];
-            for (let i = 0; i < responseJSON.length; i++) {
-                let timeDiff = responseJSON[i].timeToNowDiff;
+            for (let i = 0; i < lessonsResponse.length; i++) {
+                let timeDiff = lessonsResponse[i].timeToNowDiff;
                 let formattedTime = timeFormat(timeDiff);
 
                 timers[i] = {
@@ -117,9 +114,15 @@ function refreshLessons() {
                     }, 1000)
                 };
 
-                table.innerHTML += getRowElement(responseJSON[i].lessonName, responseJSON[i].themeName, formattedTime, responseJSON[i].lessonID, i);
+                lessonsTable.innerHTML += createRowFromPattern(
+                    lessonsResponse[i].lessonName,
+                    lessonsResponse[i].themeName,
+                    formattedTime,
+                    lessonsResponse[i].lessonID,
+                    i
+                );
             }
-            document.getElementById("active_lessons").style.display = (responseJSON.length === 0 ? "none" : "block");
+            document.getElementById("active_lessons").style.display = (lessonsResponse.length === 0 ? "none" : "block");
         }})
     };
 	xhr.send();
@@ -140,12 +143,11 @@ function refreshThemes(lessonsCode) {
     xhr.onreadystatechange = function() {
         readyStateHandler(xhr, {200: function () {
             let dataList = document.getElementById('themes-for-subject');
-            while (dataList.firstChild) dataList.removeChild(dataList.firstChild);
-            let responseJSON = JSON.parse(xhr.responseText);
-            for (let i = 0; i < responseJSON.length; i++) {
-                let option = document.createElement("option");
-                option.value = responseJSON[i].name;
-                dataList.appendChild(option);
+            while (dataList.firstChild)
+                dataList.removeChild(dataList.firstChild);
+            let themesResponse = JSON.parse(xhr.responseText);
+            for (let i = 0; i < themesResponse.length; i++) {
+                dataList.appendChild(createOption(null, themesResponse[i].name));
             }
         }})
     };
@@ -155,13 +157,10 @@ function refreshThemes(lessonsCode) {
 function init() {
 	let subjects = localStorage['subjects'];
 	if (subjects != null) {
-		let select = document.getElementById('subject-select');
-        let responseJSON = JSON.parse(subjects);
-        for (let i = 0; i < responseJSON.length; i++) {
-            let option = document.createElement("option");
-            option.text = responseJSON[i].name;
-            option.value = responseJSON[i].k;
-            select.add(option);
+		let subjectSelect = document.getElementById('subject-select');
+        let subjectFromLocalStorage = JSON.parse(subjects);
+        for (let i = 0; i < subjectFromLocalStorage.length; i++) {
+            subjectSelect.add(createOption(subjectFromLocalStorage[i].name, subjectFromLocalStorage[i].k));
         }
 	}
 
@@ -175,12 +174,9 @@ function init() {
                 return;
             }
             localStorage.setItem('subjects', xml.responseText);
-            let responseJSON = JSON.parse(xml.responseText);
-            for (let i = 0; i < responseJSON.length; i++) {
-                let option = document.createElement("option");
-                option.text = responseJSON[i].name;
-                option.value = responseJSON[i].k;
-                select.add(option);
+            let subjectResponse = JSON.parse(xml.responseText);
+            for (let i = 0; i < subjectResponse.length; i++) {
+                select.add(createOption(subjectResponse[i].name, subjectResponse[i].k));
             }
             loadDatalistForSubjectSelect();
         }})
@@ -236,13 +232,18 @@ function loadDatalistForSubjectSelect() {
             while (datalistForSubject.firstChild)
                 datalistForSubject.removeChild(datalistForSubject.firstChild);
             for (let i = 0; i < responseJSON.length; i++) {
-                let option = document.createElement("option");
-                option.value = responseJSON[i].name;
-                datalistForSubject.appendChild(option);
+                datalistForSubject.appendChild(createOption(null, responseJSON[i].name));
             }
         }})
     };
 	xhr.send();
+}
+
+function createOption(text, value) {
+    let option = document.createElement("option");
+    option.value = value;
+    option.text = text;
+    return option;
 }
 
 function handleException(code) {
