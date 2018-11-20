@@ -2,37 +2,26 @@ checkTheme();
 
 function checkTheme() {
     let styleTheme = getCookie('style-theme');
-    if (styleTheme != null) {
-        let oldLink = document.getElementsByTagName("link").item(0);
-
-        let newLink = document.createElement("link");
-        newLink.setAttribute("rel", "stylesheet");
-        newLink.setAttribute("type", "text/css");
+    if (styleTheme) {
         if (styleTheme === "white") {
-            newLink.setAttribute("href", "css/main_white.css");
-            document.getElementsByTagName("head").item(0).replaceChild(newLink, oldLink);
+            changeStyle('dark', 'light');
             window.onload = function () {
-                let subjectIconBlack = document.getElementById("subject_icon_black");
-                if (subjectIconBlack != null) {
-                    subjectIconBlack.style.display = "block";
-                    document.getElementById("subject_icon_white").style.display = "none";
-                    document.getElementById("theme_icon_black").style.display = "block";
-                    document.getElementById("theme_icon_white").style.display = "none";
-                }
+                changeStyle('dark', 'light');
             };
         } else if (styleTheme === "dark") {
-            newLink.setAttribute("href", "css/main_dark.css");
-            document.getElementsByTagName("head").item(0).replaceChild(newLink, oldLink);
+            changeStyle('light', 'dark');
             window.onload = function() {
-                let subjectIconBlack = document.getElementById("subject_icon_black");
-                if (subjectIconBlack != null) {
-                    subjectIconBlack.style.display = "none";
-                    document.getElementById("subject_icon_white").style.display = "block";
-                    document.getElementById("theme_icon_black").style.display = "none";
-                    document.getElementById("theme_icon_white").style.display = "block";
-                }
+                changeStyle('light', 'dark')
             };
         }
+    }
+}
+
+function changeStyle(oldClassName, currentClassName) {
+    let bodyElement = document.getElementsByTagName("body")[0];
+    if (bodyElement) {
+        bodyElement.classList.remove(oldClassName);
+        bodyElement.classList.add(currentClassName);
     }
 }
 

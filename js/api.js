@@ -26,6 +26,11 @@ function readyStateHandler(xmlHttpRequest, settings) {
     }
 }
 
+function changeColorSchema(name) {
+    let element = document.getElementsByTagName('body')[0];
+
+}
+
 function cancelButtonClick(lesson_id) {
 	if (!confirm("Ви впевнені, що бажаєте відмінити зайняття?")) return;
 
@@ -204,6 +209,9 @@ function setSubjectNotify() {
                 } break;
                 case 4: {
                     subjectNotify.innerHTML = "Так, лінива жопа. Сьогодні пахаєш. Треба вчити:<br> ";
+                    for (let i = 0; i < responseJSON.length; i++) {
+                        subjectNotify.innerHTML += (i + 1) + ". " + responseJSON[i].subjectName + "<br>";
+                    }
                     if (getCookie('subjectNotify') !== 'off') {
                         setCookie('subjectNotify', 'off');
                         alert("Альо, гальорка! Вчи давай!");
