@@ -5,7 +5,7 @@
 	$theme_name = urldecode($_POST["theme"]);
 
 	$connection = EIT_DAO::getConnection();
-	
+    $connection->beginTransaction();
 	$querySearchTheme = "SELECT k FROM theme WHERE name LIKE ?";
 
 	$sth = $connection->prepare($querySearchTheme);
@@ -27,8 +27,10 @@
 	if ($sth3->rowCount() > 0) {
 		http_response_code(200);
 		$insert_id_for_lesson = $connection->lastInsertId();
+		$connection->commit();
 		exit("Insert successful. New lesson ID = [$insert_id_for_lesson]\n");
 	}
+	$connection->rollBack();
 	http_response_code(500);
-	echo "Cannot insert new lesson. Error from database: " . $sth3->errorInfo();
+	echo "Cannot insert new lesson. Error from database: " . $sth3->errorInfo()[0] . " :: " . $sth3->errorInfo()[1] . " :: " . $sth3->errorInfo()[2];
 ?>

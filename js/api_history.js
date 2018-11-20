@@ -3,7 +3,6 @@ const tablePattern = "<tr><td>${subject}</td><td>${theme}</td><td>${time}</td></
 init();
 function init() {
     getAllSubject();
-
 }
 
 function getTableRowFromPattern(subject, theme, time) {
