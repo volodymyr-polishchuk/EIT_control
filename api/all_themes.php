@@ -4,8 +4,14 @@
 	$code = $_GET["subject_code"];
 
 	$connection = EIT_DAO::getConnection();
+    $user = $_COOKIE['auth-k'];
+	if (!is_numeric($user)) die(403);
 
-	$query = "SELECT k, name FROM theme WHERE subject LIKE ?";
+	$query = "SELECT theme.k, 
+                     theme.name 
+                FROM theme 
+               WHERE theme.subject LIKE ? 
+                     AND theme.user = $user";
 	$sth = $connection->prepare($query);
 	$sth->execute(array($code));
 

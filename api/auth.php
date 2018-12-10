@@ -6,11 +6,15 @@
 		die('cookie not exists');
 	}
 	$token = $_COOKIE['auth-token'];
+	$id = $_COOKIE['auth-k'];
 
-	$query = "SELECT COUNT(*) AS count_column FROM users_eit WHERE password_hash LIKE ?;";
+	$query = "SELECT COUNT(*) AS count_column 
+                FROM users_eit 
+               WHERE password_hash LIKE ? 
+                     AND k LIKE ?;";
 
 	$sth = $connection->prepare($query);
-	$sth->execute(array($token));
+	$sth->execute(array($token, $id));
 	$row = $sth->fetchAll();
 	if ($row[0]['count_column'] == 0) {
 		http_response_code(403);

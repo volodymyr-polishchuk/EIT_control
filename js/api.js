@@ -1,4 +1,4 @@
-const tableRowTemplate = '<tr><td>${lesson}</td><td><small>${theme}</small></td><td><span style="font-family: \'Courier New\',serif" id="timer_${timerId}">${time}</span></td><td><input type="button" value="&#10003;" class="success-button" onclick="successButtonClick(${lessonId})"><input type="button" value="&#10006;&#xFE0E;" class="cancel-button" onclick="cancelButtonClick(${lessonId})"></td></tr>';
+const tableRowTemplate = '<div class="lesson-block"><table width="100%"><tr><td align="left"><b>${lesson}</b><br><small>${theme}</small></td><td align="right"><span style="font-family: \'Courier New\',serif" id="timer_${timerId}">${time}</span></td></tr></table><div align="right"><table><tr><td><input type="button" value="Завершити" class="success-button" style="width: 100%" onclick="successButtonClick(${lessonId})"></td><td><input type="button" value="Відмінити" class="cancel-button" style="width: 100%" onclick="cancelButtonClick(${lessonId})"></td></tr></table></div></div>';
 let timers = [];
 
 init();
@@ -22,7 +22,7 @@ function readyStateHandler(xmlHttpRequest, settings) {
     if (xmlHttpRequest.status === 403) {
         handleException(xmlHttpRequest.status);
     } else {
-        const message = "Сталася помилка. Зверністься до адміністратора. "
+        const message = "Сталася помилка. Зверніться до адміністратора. "
             + xmlHttpRequest.status + " - " + xmlHttpRequest.statusText;
         alert(message);
     }
@@ -241,8 +241,10 @@ function loadDatalistForSubjectSelect() {
 
 function createOption(text, value) {
     let option = document.createElement("option");
-    option.value = value;
-    option.text = text;
+    if (value)
+        option.value = value;
+    if (text)
+        option.text = text;
     return option;
 }
 

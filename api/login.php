@@ -5,7 +5,11 @@
 	require_once('connect.php');
 	$connection = EIT_DAO::getConnection();
 	
-	$query = "SELECT k, password_hash FROM users_eit WHERE login LIKE ? AND password LIKE ?;";
+	$query = "SELECT k, 
+                     password_hash 
+                FROM users_eit 
+               WHERE login LIKE ? 
+                     AND password LIKE ?;";
 
 	$sth = $connection->prepare($query);
 	$sth->execute(array($login, $password));

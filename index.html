@@ -3,7 +3,7 @@
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   	<title>Контроль підготовки до ЗНО</title>
-	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/main.css" media="all">
 	<link rel="icon" href="resource/icons/favicon32.png">
 </head>
 <body class="light">
@@ -61,21 +61,12 @@
 		<hr>
 		<h3>Активні зайняття</h3>
 		<hr>
-	<table border="1" width="100%" class="current-lessons-table">
-		<thead>
-			<tr>
-				<th><img src="resource/icons/subject_white.svg" width="16" height="16" alt="Предмет"></th>
-				<th><img src="resource/icons/theme_white.svg" width="16" height="16" alt="Тема"></th>
-				<th><img src="resource/icons/time_white.svg" width="16" height="16" alt="Час"></th>
-				<th><!-- empty column --></th>
-			</tr>
-		</thead>
-		<tbody id="lessons_table">
-		</tbody>
-	</table>
+        <div id="lessons_table">
+
+        </div>
 	</div>
 
 	<div class="rounded-block" id="subject_notify"></div>
-  <script src="js/api.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/api.js" type="text/javascript" charset="utf-8" async></script>
 </body>
 </html>

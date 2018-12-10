@@ -11,8 +11,8 @@
 		$subject = '%';
 	}
 
-	$group_sum;
-	$group_by;
+	$group_sum = "";
+	$group_by = "";
 	if ($group != 0) {
 		$group_sum = "SUM";
 		$group_by = "GROUP BY lessons.theme";
@@ -21,21 +21,31 @@
 		$group_by = "";
 	}
 
-	$from_date_piece;
+	$from_date_piece = "";
 	if ($from_date == "") {
 		$from_date_piece = "TRUE";
 	} else {
 		$from_date_piece = "lessons.date_start >= '$from_date'";
 	}
 
-	$to_date_piece;
+	$to_date_piece = "";
 	if ($to_date == "") {
 		$to_date_piece = "TRUE";
 	} else {
-		$to_date_piece = "lessons.date_end < (DATE_ADD('$to_date', INTERVAL 1 DAY))";
+		$to_date_piece = "lessons.date_start < (DATE_ADD('$to_date', INTERVAL 1 DAY))";
 	}
 
-	$sql_query = "SELECT subject.name AS subjectName, theme.name AS themeName, $group_sum(UNIX_TIMESTAMP(date_end) - UNIX_TIMESTAMP(date_start)) AS time FROM `lessons` INNER JOIN subject ON subject.k = lessons.subject INNER JOIN theme ON theme.k = lessons.theme WHERE lessons.subject LIKE '$subject' AND lessons.active LIKE '0' AND $from_date_piece AND $to_date_piece $group_by";
+	$sql_query = "SELECT subject.name AS subjectName, 
+                         theme.name AS themeName, 
+                         $group_sum(UNIX_TIMESTAMP(date_end) - UNIX_TIMESTAMP(date_start)) AS 'time' 
+                    FROM `lessons` 
+                         INNER JOIN subject ON subject.k = lessons.subject 
+                         INNER JOIN theme ON theme.k = lessons.theme 
+                   WHERE lessons.subject LIKE '$subject' 
+                         AND lessons.active LIKE '0' 
+                         AND $from_date_piece 
+                         AND $to_date_piece 
+                  $group_by";
 
 	$connection = EIT_DAO::getConnection();
 	

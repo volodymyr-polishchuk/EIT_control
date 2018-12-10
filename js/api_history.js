@@ -102,8 +102,10 @@ function getAllSubject() {
 
 function createOption(text, value) {
     let option = document.createElement("option");
-    option.value = value;
-    option.text = text;
+    if (value)
+        option.value = value;
+    if (text)
+        option.text = text;
     return option;
 }
 

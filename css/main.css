@@ -149,6 +149,12 @@ td {
     padding: 0.375rem 0.75rem;
 }
 
+.lesson-block {
+    border-radius: 5px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
 /*dark schema*/
 body[class="dark"] {
     background: #131b26;
@@ -241,6 +247,10 @@ body[class="dark"] {
 
 .dark #theme_svg {
     fill: white;
+}
+
+.dark .lesson-block {
+    background: #131b26;
 }
 
 /*white schema*/
@@ -336,6 +346,10 @@ body[class="light"] {
 
 .light #theme_svg {
     fill: black;
+}
+
+.light .lesson-block {
+    background: #d3f589;
 }
 
 
